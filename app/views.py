@@ -1,17 +1,6 @@
-
-from crypt import methods
-from turtle import title
-from unicodedata import category
-from flask import Flask,render_template, render_template, url_for, flash,redirect
+from flask import render_template, url_for, flash,redirect
+from app import app
 from app.forms import RegistrationForm, LoginForm
-from flask_sqlalchemy import SQLAlchemy
-
-
-app = Flask(__name__)
-app.config['SECRET_KEY']='12345'
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
-db=SQLAlchemy(app)
-
 from app.models import User,Pitch
 
 pitches= [
@@ -70,7 +59,3 @@ def login():
         flash(f'You have been logged in {form.email.data}!', 'success')
         return redirect(url_for('home'))
     return render_template('login.html',title='Login',form=form) 
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
