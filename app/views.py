@@ -85,4 +85,4 @@ def new_pitch():
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
     return render_template('create_post.html', title='New Post',
-                           form=form, legend='New Post')
+                           form='form', legend='New Post')
