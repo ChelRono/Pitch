@@ -1,6 +1,7 @@
 from unicodedata import category
 from flask import render_template, url_for, flash,redirect
-from app import app
+from app import app,db
+
 from app.forms import RegistrationForm, LoginForm,PitchForm
 from app.models import User,Pitch
 from flask_login import login_required,logout_user,current_user
@@ -77,12 +78,12 @@ def account():
 @app.route("/pitch/new", methods=['GET', 'POST'])
 @login_required
 def new_pitch():
-    pitch = PitchForm()
-    if pitch.validate_on_submit():
+    form = PitchForm()
+    if form.validate_on_submit():
         pitch = Pitch(category=form.category.data, content=form.content.data, author=current_user)
         db.session.add(pitch)
         db.session.commit()
         flash('Your post has been created!', 'success')
         return redirect(url_for('home'))
     return render_template('create_post.html', title='New Post',
-                           form='form', legend='New Post')
+                           form=form, legend='New Post')
