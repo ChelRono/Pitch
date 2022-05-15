@@ -1,10 +1,10 @@
 from unicodedata import category
-from flask import render_template, url_for, flash,redirect
-from app import app,db
+from flask import render_template, url_for, flash,redirect,request
+from app import app,db,bcrypt
 
-from app.forms import RegistrationForm, LoginForm,PitchForm
+from app.main.forms import RegistrationForm, LoginForm,PitchForm
 from app.models import User,Pitch
-from flask_login import login_required,logout_user,current_user
+from flask_login import login_required,logout_user,current_user,login_user
 
 pitches= [
     {
@@ -55,13 +55,20 @@ def register():
         return redirect(url_for('home'))
     return render_template('register.html',title='Register', form=form) 
 
-@app.route("/login", methods=['GET','POST'])
+@app.route("/login", methods=['GET', 'POST'])
 def login():
-    form=LoginForm()
-    if form.validate_on_submit():
-        flash(f'You have been logged in {form.email.data}!', 'success')
+    if current_user.is_authenticated:
         return redirect(url_for('home'))
-    return render_template('login.html',title='Login',form=form) 
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=form.remember.data)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('home'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
 
 @app.route("/logout")
 def logout():
