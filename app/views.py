@@ -2,6 +2,7 @@ from flask import render_template, url_for, flash,redirect
 from app import app
 from app.forms import RegistrationForm, LoginForm
 from app.models import User,Pitch
+from flask_login import login_required,logout_user
 
 pitches= [
     {
@@ -59,3 +60,14 @@ def login():
         flash(f'You have been logged in {form.email.data}!', 'success')
         return redirect(url_for('home'))
     return render_template('login.html',title='Login',form=form) 
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
+@app.route("/account")
+@login_required
+def account():
+    return render_template('account.html', title='Account')
